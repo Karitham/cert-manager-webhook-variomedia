@@ -18,8 +18,8 @@ https://api.variomedia.de/docs/legacy/ .
 
 # Security warning
 
-The API keys provided by Variomedia are currently *not* restrictable to allow for
-DNS updates only - if your key is compromised, *any* entry in your Variomedia customer
+The API keys provided by Variomedia are currently **not** restrictable to allow for
+DNS updates only - if your key is compromised, **any** entry in your Variomedia customer
 profile can be updated by the one having the key.
 
 Also note that you are solely responsible for protecting access to not only the key, but also
@@ -28,7 +28,7 @@ at Variomedia, including adding malicious entries, overriding existing entries (
 and deleting existing entries (even if not DNS-01-related).
 
 By using this software, you agree to not hold responsible the authors of this software
-for *any* damange that may occur to you, directly or indirectly, and accept that the
+for **any** damange that may occur to you, directly or indirectly, and accept that the
 authors of this software make no guarantees on the suitability of this software for any use.
 
 In other words: Use this software at your own risk.
@@ -76,12 +76,12 @@ you can build and upload your local copy of the software using the following com
 
 ```bash
 # to upload the container image to your registry
-export REGISTRY='your.registry.company.com/yourproject'
-docker login $REGISTRY
+$ export REGISTRY='your.registry.company.com/yourproject'
+$ docker login $REGISTRY
 
 # push the resulting image to your repository
 # will invoke via dependencies test -> build -> push
-TEST_ZONE_NAME=example.com. make push
+$ TEST_ZONE_NAME=example.com. make push
 ```
 
 ## Installation via Helm chart
@@ -99,9 +99,9 @@ a Kubernetes "secret" for each API key issued by Variomedia to you and then conf
 to reference each according secret per DNS domain handled by the Issuer:
 
 ```bash
-kubectl create secret generic variomedia-credentials-01 --from-literal=api-token='yourApiKeyGoesHere'
-kubectl create secret generic variomedia-credentials-02 --from-literal=api-token='someOtherApiKeyGoesHere'
-kubectl apply -f - << EOF
+$ kubectl create secret generic variomedia-credentials-01 --from-literal=api-token='yourApiKeyGoesHere'
+$ kubectl create secret generic variomedia-credentials-02 --from-literal=api-token='someOtherApiKeyGoesHere'
+$ kubectl apply -f - << EOF
         apiVersion: cert-manager.io/v1
         kind: ClusterIssuer
         metadata:
