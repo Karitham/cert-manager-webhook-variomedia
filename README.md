@@ -28,7 +28,7 @@ at Variomedia, including adding malicious entries, overriding existing entries (
 and deleting existing entries (even if not DNS-01-related).
 
 By using this software, you agree to not hold responsible the authors of this software
-for **any** damange that may occur to you, directly or indirectly, and accept that the
+for **any** damage that may occur to you, directly or indirectly, and accept that the
 authors of this software make no guarantees on the suitability of this software for any use.
 
 In other words: Use this software at your own risk.
