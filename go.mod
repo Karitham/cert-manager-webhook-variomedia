@@ -1,4 +1,4 @@
-module github.com/cert-manager/webhook-example
+module github.com/jmozd/cert-manager-webhook-variomedia
 
 go 1.17
 

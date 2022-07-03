@@ -3,7 +3,7 @@ ARCH ?= $(shell go env GOARCH)
 
 PROVIDER := "variomedia"
 IMAGE_NAME := "${REGISTRY}cert-manager-webhook-${PROVIDER}"
-IMAGE_TAG := "latest"
+IMAGE_TAG := "2.0.0"
 
 OUT := $(shell pwd)/_out
 
@@ -30,8 +30,11 @@ clean: clean-kubebuilder
 clean-kubebuilder:
 	rm -Rf _test/kubebuilder
 
-build:
+build:	test
 	docker build -t "$(IMAGE_NAME):$(IMAGE_TAG)" .
+
+push:	build
+	docker push $(IMAGE_NAME):$(IMAGE_TAG)
 
 .PHONY: rendered-manifest.yaml
 rendered-manifest.yaml:

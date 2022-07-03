@@ -124,32 +124,32 @@ func (c *variomediaClient) UpdateTxtRecord(domain *string, name *string, value *
 	// the actual request is encoded in JSON
 	body, err := json.Marshal( reqData)
 	if err != nil {
-		klog.V(2).ErrorS(err, "UpdateTxtRecord() finished with error")
+		klog.ErrorS(err, "UpdateTxtRecord() finished with error")
 		return "", fmt.Errorf("cannot marshall to json: %v", err)
 	}
 
 	req, err := http.NewRequest("POST", variomediaLiveDnsBaseUrl, bytes.NewReader(body))
 	if err != nil {
-		klog.V(2).ErrorS(err, "UpdateTxtRecord() finished with error")
+		klog.ErrorS(err, "UpdateTxtRecord() finished with error")
 		return "", err
 	}
 
 	// contact Variomedia and check the results
 	status, respData, err := c.doRequest(req, true)
 	if err != nil {
-		klog.V(2).ErrorS(err, "UpdateTxtRecord() finished with error")
+		klog.ErrorS(err, "UpdateTxtRecord() finished with error")
 		return "", err
 	}
 
 	// have we hit the rate limit?
 	if status == http.StatusTooManyRequests {
-		klog.V(2).ErrorS( fmt.Errorf("Variomedia rate limit reached (HTTP code %d)", http.StatusTooManyRequests), "UpdateTxtRecord() finished with error")
+		klog.ErrorS( nil, "UpdateTxtRecord() finished with errori 'too many requests' reported by Variomedia")
 		return "", fmt.Errorf("Variomedia rate limit reached (HTTP code %d)", http.StatusTooManyRequests)
 	}
 
 	if status != http.StatusCreated && status != http.StatusOK && status != http.StatusAccepted {
-		klog.V(2).ErrorS(err, "UpdateTxtRecord() finished with error")
-		return "", fmt.Errorf("failed creating TXT record: %v", err)
+		klog.ErrorS(nil, "UpdateTxtRecord() finished with error reported by server", "status code", status)
+		return "", fmt.Errorf("failed creating TXT record: server reported status code %d", status)
 	}
 
 	// the request has succeeded - but is the job already finished?
@@ -157,7 +157,7 @@ func (c *variomediaClient) UpdateTxtRecord(domain *string, name *string, value *
 	var reply variomediaResponse
 	err = json.Unmarshal( respData, &reply)
 	if err != nil {
-		klog.V(2).ErrorS(err, "UpdateTxtRecord() finished with error")
+		klog.ErrorS(err, "UpdateTxtRecord() finished with error")
 		return "", fmt.Errorf("cannot unmarshall response to json: %v", err)
 	}
 	klog.V(5).InfoS( "HTTP finished", "JSON reply", reply)
@@ -174,33 +174,33 @@ func (c *variomediaClient) UpdateTxtRecord(domain *string, name *string, value *
 			// re-fetch the job status
 			req, err := http.NewRequest("GET", reply.Data.Links[ "queue-job"], nil)
 			if err != nil {
-				klog.V(2).ErrorS(err, "UpdateTxtRecord() finished with error")
+				klog.ErrorS(err, "UpdateTxtRecord() finished with error")
 				return "", err
 			}
 
 			// contact Variomedia and check the results
 			status, respData, err := c.doRequest(req, true)
 			if err != nil {
-				klog.V(2).ErrorS(err, "UpdateTxtRecord() finished with error")
+				klog.ErrorS(err, "UpdateTxtRecord() finished with error")
 				return "", err
 			}
 
 			// have we hit the rate limit?
 			if status == http.StatusTooManyRequests {
-				klog.V(2).ErrorS(fmt.Errorf("Variomedia rate limit reached (HTTP code %d)", http.StatusTooManyRequests), "UpdateTxtRecord() finished with error")
+				klog.ErrorS( nil, "UpdateTxtRecord() finished with errori 'too many requests' reported by Variomedia")
 				return "", fmt.Errorf("Variomedia rate limit reached (HTTP code %d)", http.StatusTooManyRequests)
 			}
 
 			if status != http.StatusCreated && status != http.StatusOK && status != http.StatusAccepted {
-				klog.V(2).ErrorS(err, "UpdateTxtRecord() finished with error")
-				return "", fmt.Errorf("failed creating TXT record: %v", err)
+				klog.ErrorS(nil, "UpdateTxtRecord() finished with error reported by server", "status code", status)
+				return "", fmt.Errorf("failed creating TXT record: server reported status code %d", status)
 			}
 
 			// the request has succeeded - but is the job already finished?
 			// check the response for an according '' element
 			err = json.Unmarshal( respData, &reply)
 			if err != nil {
-				klog.V(2).ErrorS(err, "UpdateTxtRecord() finished with error")
+				klog.ErrorS(err, "UpdateTxtRecord() finished with error")
 				return "", fmt.Errorf("cannot unmarshall response to json: %v", err)
 			}
 			klog.V(5).InfoS( "HTTP finished", "JSON reply", reply)
@@ -213,7 +213,7 @@ func (c *variomediaClient) UpdateTxtRecord(domain *string, name *string, value *
 			break;
 		}
 		if (loopcount == 0) {
-			klog.V(2).ErrorS(fmt.Errorf("DNS update job timed out with most recent status '%s'", reply.Data.Attributes[ "status"]), "UpdateTxtRecord() finished with error")
+			klog.ErrorS(nil, "UpdateTxtRecord() finished with error: job timed out", "most recent status", reply.Data.Attributes[ "status"])
 			return "", fmt.Errorf("DNS update job timed out with most recent status '%s'", reply.Data.Attributes[ "status"])
 		}
 	} // emulated do until
@@ -237,25 +237,25 @@ func (c *variomediaClient) DeleteTxtRecord(url string, ttl int) error {
 	// deleting a record happens by sending a HTTP "DELETE" request to the DNS entry's URL
 	req, err := http.NewRequest("DELETE", url, nil)
 	if err != nil {
-		klog.V(2).ErrorS(err, "DeleteTxtRecord() finished with error")
+		klog.ErrorS(err, "DeleteTxtRecord() finished with error")
 		return err
 	}
 
 	// contact Variomedia and check the results
 	status, respData, err := c.doRequest(req, true)
 	if err != nil {
-		klog.V(2).ErrorS(err, "DeleteTxtRecord() finished with error")
+		klog.ErrorS(err, "DeleteTxtRecord() finished with error")
 		return err
 	}
 
 	// have we hit the rate limit?
 	if status == http.StatusTooManyRequests {
-		klog.V(2).ErrorS(fmt.Errorf("Variomedia rate limit reached (HTTP code %d)", http.StatusTooManyRequests), "DeleteTxtRecord() finished with error")
+		klog.ErrorS( nil, "DeleteTxtRecord() finished with errori 'too many requests' reported by Variomedia")
 		return fmt.Errorf("Variomedia rate limit reached (HTTP code %d)", http.StatusTooManyRequests)
 	}
 
 	if status != http.StatusCreated && status != http.StatusOK && status != http.StatusAccepted {
-		klog.V(2).ErrorS(err, "DeleteTxtRecord() finished with error")
+		klog.ErrorS(nil, "DeleteTxtRecord() finished with error reported by server", "status code", status)
 		return fmt.Errorf("failed deleting TXT record: %v", err)
 	}
 
@@ -264,7 +264,7 @@ func (c *variomediaClient) DeleteTxtRecord(url string, ttl int) error {
 	var reply variomediaResponse
 	err = json.Unmarshal( respData, &reply)
 	if err != nil {
-		klog.V(2).ErrorS(err, "DeleteTxtRecord() finished with error")
+		klog.ErrorS(err, "DeleteTxtRecord() finished with error")
 		return fmt.Errorf("cannot unmarshall response to json: %v", err)
 	}
 	klog.V(5).InfoS( "HTTP finished", "JSON reply", reply)
@@ -281,25 +281,25 @@ func (c *variomediaClient) DeleteTxtRecord(url string, ttl int) error {
 			// re-fetch the job status
 			req, err := http.NewRequest("GET", reply.Data.Links[ "queue-job"], nil)
 			if err != nil {
-				klog.V(2).ErrorS(err, "DeleteTxtRecord() finished with error")
+				klog.ErrorS(err, "DeleteTxtRecord() finished with error")
 				return err
 			}
 
 			// contact Variomedia and check the results
 			status, respData, err := c.doRequest(req, true)
 			if err != nil {
-				klog.V(2).ErrorS(err, "DeleteTxtRecord() finished with error")
+				klog.ErrorS(err, "DeleteTxtRecord() finished with error")
 				return err
 			}
 
 			// have we hit the rate limit?
 			if status == http.StatusTooManyRequests {
-				klog.V(2).ErrorS(fmt.Errorf("Variomedia rate limit reached (HTTP code %d)", http.StatusTooManyRequests), "DeleteTxtRecord() finished with error")
+				klog.ErrorS( nil, "DeleteTxtRecord() finished with errori 'too many requests' reported by Variomedia")
 				return fmt.Errorf("Variomedia rate limit reached (HTTP code %d)", http.StatusTooManyRequests)
 			}
 
 			if status != http.StatusCreated && status != http.StatusOK && status != http.StatusAccepted && status != http.StatusNotFound {
-				klog.V(2).ErrorS(err, "DeleteTxtRecord() finished with error")
+				klog.ErrorS(nil, "DeleteTxtRecord() finished with error reported by server", "status code", status)
 				return fmt.Errorf("failed creating TXT record: %v", err)
 			}
 
@@ -307,7 +307,7 @@ func (c *variomediaClient) DeleteTxtRecord(url string, ttl int) error {
 			// check the response for an according '' element
 			err = json.Unmarshal( respData, &reply)
 			if err != nil {
-				klog.V(2).ErrorS(err, "DeleteTxtRecord() finished with error")
+				klog.ErrorS(err, "DeleteTxtRecord() finished with error")
 				return fmt.Errorf("cannot unmarshall response to json: %v", err)
 			}
 			klog.V(5).InfoS( "HTTP finished", "JSON reply", reply)
@@ -327,7 +327,7 @@ func (c *variomediaClient) DeleteTxtRecord(url string, ttl int) error {
 			break;
 		}
 		if (loopcount == 0) {
-			klog.V(2).ErrorS(fmt.Errorf("DNS update job timed out with most recent status '%s'", reply.Data.Attributes[ "status"]), "DeleteTxtRecord() finished with error")
+			klog.ErrorS(nil, "DeleteTxtRecord() finished with error: job timed out", "most recent status", reply.Data.Attributes[ "status"])
 			return fmt.Errorf("DNS update job timed out with most recent status '%s'", reply.Data.Attributes[ "status"])
 		}
 	} // emulated do until
@@ -363,7 +363,7 @@ func (c *variomediaClient) doRequest(req *http.Request, readResponseBody bool) (
 
 	res, err := client.Do(req)
 	if err != nil {
-		klog.V(2).ErrorS(err, "doRequest() finished with error")
+		klog.ErrorS(err, "doRequest() finished with error")
 		return 0, nil, err
 	}
 
@@ -373,7 +373,7 @@ func (c *variomediaClient) doRequest(req *http.Request, readResponseBody bool) (
 	if (res.StatusCode == http.StatusOK || res.StatusCode == http.StatusAccepted) && readResponseBody {
 		data, err := ioutil.ReadAll(res.Body)
 		if err != nil {
-			klog.V(2).ErrorS(err, "HTTP request finished with error")
+			klog.ErrorS(err, "HTTP request finished with error")
 			return 0, nil, err
 		}
 		klog.V(4).InfoS( "HTTP request succeeded", "status code", res.StatusCode)

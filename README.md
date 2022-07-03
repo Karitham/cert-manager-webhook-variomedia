@@ -49,25 +49,15 @@ webhook to complete ACME challenge validations and obtain certificates.
 The Variomedia AG webhook implementation is based on the example webhook provided
 by the cert-manager project (https://github.com/cert-manager/webhook-example).
 
-### Creating your own repository
+### Using your own repository
 
 The GitHub version of the Variomedia webhook implementation is focussed on providing
 an implementation in a decentral container registry, i.e. "Harbor". The Docker image
 is currently *not* published on docker.io.
 
-Once you have your registry up & running (which is not part of this README description),
-you can build your local copy of the software using the following commands:
-
-```bash
-# to upload the container image to your registry
-export REGISTRY='your.registry.company.com'
-docker login $REGISTRY
-make build
-```
-
 #### Running the test suite
 
-**It is essential that you configure and run the test suite after creating the
+**It is essential that you configure and run the test suite after modifying the
 DNS01 webhook.**
 
 You can run the test suite with:
@@ -76,8 +66,23 @@ You can run the test suite with:
 $ TEST_ZONE_NAME=example.com. make test
 ```
 
-The example file has a number of areas you must fill in and replace with your
-own options in order for tests to pass.
+Setting the trailing "." on the zone name (for which you have the Variomedia API key
+and set up the files in the testdata/my-custom-solver/ subdirectory) is required, the
+test run might otherwise fail.
+
+### Pushing the Docker image
+Once you have your registry up & running (which is not part of this README description),
+you can build and upload your local copy of the software using the following commands:
+
+```bash
+# to upload the container image to your registry
+export REGISTRY='your.registry.company.com/yourproject'
+docker login $REGISTRY
+
+# push the resulting image to your repository
+# will invoke via dependencies test -> build -> push
+TEST_ZONE_NAME=example.com. make push
+```
 
 ## Installation via Helm chart
 
@@ -119,7 +124,7 @@ kubectl apply -f - << EOF
             - dns01:
                 webhook:
                   groupName: acme.cert-manager-webhook-variomedia.local
-                  solverName: variomedia
+                  solverName: variomedia-APIv2019
                   config:
                     example.com: variomedia-credentials-01
                     someotherdomain.com: variomedia-credentials-01

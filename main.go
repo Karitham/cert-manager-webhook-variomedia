@@ -124,14 +124,14 @@ func (c *customDNSProviderSolver) Present(ch *v1alpha1.ChallengeRequest) error {
 
 	cfg, err := c.loadApiKeys(ch.Config, ch.ResourceNamespace)
 	if err != nil {
-		klog.V(2).ErrorS( err, "Present() finished with error while loading API keys")
+		klog.ErrorS( err, "Present() finished with error while loading API keys")
 		return err
 	}
         klog.V(6).Infof("decoded configuration %v", cfg)
 
         entry, domain, apiKey, err := c.getDomainAndEntryAndApiKey( ch, &cfg)
         if err != nil {
-		klog.V(2).ErrorS( err, "Present() finished with error while determining domain and entry name")
+		klog.ErrorS( err, "Present() finished with error while determining domain and entry name")
                 return fmt.Errorf("unable to get domain key for zone %s: %v", ch.ResolvedZone, err)
         }
 	klog.V(4).InfoS( "present", "entry", entry, "domain", domain, "entry", entry, "API key", apiKey)
@@ -140,7 +140,7 @@ func (c *customDNSProviderSolver) Present(ch *v1alpha1.ChallengeRequest) error {
 
         url, err := variomediaClient.UpdateTxtRecord(&domain, &entry, &ch.Key, variomediaMinTtl)
         if err != nil {
-		klog.V(2).ErrorS( err, "Present() finished with error while trying to update the DNS record")
+		klog.ErrorS( err, "Present() finished with error while trying to update the DNS record")
                 return fmt.Errorf("unable to change TXT record: %v", err)
         }
 
@@ -170,14 +170,14 @@ func (c *customDNSProviderSolver) CleanUp(ch *v1alpha1.ChallengeRequest) error {
 
 	cfg, err := c.loadApiKeys(ch.Config, ch.ResourceNamespace)
 	if err != nil {
-		klog.V(2).ErrorS( err, "CleanUp() finished with error while loading API keys")
+		klog.ErrorS( err, "CleanUp() finished with error while loading API keys")
 		return err
 	}
         klog.V(6).Infof("decoded configuration %v", cfg)
 
         entry, domain, apiKey, err := c.getDomainAndEntryAndApiKey( ch, &cfg)
         if err != nil {
-		klog.V(2).ErrorS( err, "CleanUp() finished with error while determining domain and entry name")
+		klog.ErrorS( err, "CleanUp() finished with error while determining domain and entry name")
                 return fmt.Errorf("unable to get domain key for zone %s: %v", ch.ResolvedZone, err)
         }
 	klog.V(4).InfoS( "clean up", "entry", entry, "domain", domain, "entry", entry, "API key", apiKey)
@@ -188,7 +188,7 @@ func (c *customDNSProviderSolver) CleanUp(ch *v1alpha1.ChallengeRequest) error {
 
         err = variomediaClient.DeleteTxtRecord( url, variomediaMinTtl)
         if err != nil {
-		klog.V(2).ErrorS( err, "CleanUp() finished with error while trying to delete the DNS record")
+		klog.ErrorS( err, "CleanUp() finished with error while trying to delete the DNS record")
                 return fmt.Errorf("unable to delete TXT record: %v", err)
         }
 
@@ -238,13 +238,13 @@ func (c *customDNSProviderSolver) loadApiKeys(cfgJSON *extapi.JSON, namespace st
 		klog.V(6).Infof("try to load secret `%s` with key `%s`", secretName, "api-token")
 		sec, err := c.client.CoreV1().Secrets(namespace).Get(context.Background(), secretName, metav1.GetOptions{})
 		if err != nil {
-			klog.V(2).ErrorS( err, "loadApiKeys() finished with error")
+			klog.ErrorS( err, "loadApiKeys() finished with error")
 			return nil, fmt.Errorf("unable to get secret `%s`; %v", secretName, err)
 		}
 
 		secBytes, ok := sec.Data["api-token"]
 		if !ok {
-			klog.V(2).ErrorS( err, "loadApiKeys() finished with error")
+			klog.ErrorS( err, "loadApiKeys() finished with error")
 			return nil, fmt.Errorf("key %q not found in secret \"%s/%s\"", "api-token",
 				secretName, namespace)
 		}
@@ -268,7 +268,7 @@ func (c *customDNSProviderSolver) getDomainAndEntryAndApiKey(ch *v1alpha1.Challe
         domain := strings.TrimSuffix(ch.ResolvedZone, ".")
         apiKey, ok := (*cfg)[domain]
         if !ok {
-		klog.V(2).ErrorS( fmt.Errorf("domain '%s' not found in config.", domain), "getDomainAndEntryAndApiKey() finished with error")
+		klog.ErrorS( fmt.Errorf("domain '%s' not found in config.", domain), "getDomainAndEntryAndApiKey() finished with error")
                 return entry, domain, apiKey, fmt.Errorf("domain '%s' not found in config.", domain)
 	}
 
