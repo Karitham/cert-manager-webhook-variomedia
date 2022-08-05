@@ -56,7 +56,3 @@ the base64-encoded string:
 #  base64 <<< "YourVariomediaAPIKeyGoesHere"
 WW91clZhcmlvbWVkaWFBUElLZXlHb2VzSGVyZQo=
 ```
-
-
-config.json  config.json.sample  README.md  variomedia-credentials-01.yaml.sample  variomedia-credentials-02.yaml.sample  variomedia-credentials-ndeag.yaml
-
