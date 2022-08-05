@@ -41,6 +41,7 @@ const (
 )
 
 func main() {
+	klog.InitFlags(nil) // initializing the klog flags
 	klog.V(4).Infof( "main() called")
 
 	if GroupName == "" {

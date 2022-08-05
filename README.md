@@ -47,13 +47,15 @@ This is important, as otherwise it'd be possible for anyone with access to your
 webhook to complete ACME challenge validations and obtain certificates.
 
 The Variomedia AG webhook implementation is based on the example webhook provided
-by the cert-manager project (https://github.com/cert-manager/webhook-example).
+by the cert-manager project (https://github.com/cert-manager/webhook-example). Also,
+inspiration was taken from an implementation for the old Variomedia "provider API",
+which can be found at https://github.com/jheyduk/cert-manager-webhook-variomedia.
 
 ### Using your own repository
 
-The GitHub version of the Variomedia webhook implementation is focussed on providing
+The GitHub version of the Variomedia webhook implementation is currently focussed on providing
 an implementation in a decentral container registry, i.e. "Harbor". The Docker image
-is currently *not* published on docker.io.
+is currently *not* published on docker.io. This may change at a later time.
 
 #### Running the test suite
 
@@ -79,7 +81,7 @@ you can build and upload your local copy of the software using the following com
 $ export REGISTRY='your.registry.company.com/yourproject'
 $ docker login $REGISTRY
 
-# push the resulting image to your repository
+# build and push the resulting image to your repository
 # will invoke via dependencies test -> build -> push
 $ TEST_ZONE_NAME=example.com. make push
 ```
@@ -88,9 +90,13 @@ $ TEST_ZONE_NAME=example.com. make push
 
 We have provided a Helm chart to ease the installation of the Variomedia webhook.
 
+When specifying the groupName parameter, make sure to use a name in your cluster's domain.
+If you set that differently from "cluster.local", you'll need to use the proper domain suffix
+both as a Helm value and when creating the (Cluster)Issuer (see below).
+
 ## Configuration
 
-In addition to installing the webhook, you will also need to configure the according webhook and
+In addition to installing the webhook, you will also need to configure it and create at least one
 cert-manager Issuer.
 
 Configuration of the webhook consists in providing the according secrets for each DNS domain you
@@ -123,7 +129,7 @@ $ kubectl apply -f - << EOF
             solvers:
             - dns01:
                 webhook:
-                  groupName: acme.cert-manager-webhook-variomedia.local
+                  groupName: cert-manager-webhook-variomedia.cluster.local
                   solverName: variomedia-APIv2019
                   config:
                     example.com: variomedia-credentials-01
@@ -131,6 +137,9 @@ $ kubectl apply -f - << EOF
                     somethirddomain.com: variomedia-credentials-02
 EOF
 ```
+
+Although three domains were covered in above example, typically you'll have only a single domain to configure - you then can
+omit creating "secret/variomedia-credentials-02" and will have to specify only a single entry in "...:webhook:config".
 
 Variomedia AG published a page describing how to obtain the according API key (the page is in German
 only), basically stating that you can contact their support to have a key issued:

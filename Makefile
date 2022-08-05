@@ -3,7 +3,7 @@ ARCH ?= $(shell go env GOARCH)
 
 PROVIDER := "variomedia"
 IMAGE_NAME := "${REGISTRY}cert-manager-webhook-${PROVIDER}"
-IMAGE_TAG := "2.0.0"
+IMAGE_TAG := "v2.0.1"
 
 OUT := $(shell pwd)/_out
 
@@ -40,6 +40,6 @@ push:	build
 rendered-manifest.yaml:
 	helm template \
 	    --name cert-manager-webhook-${PROVIDER} \
-        --set image.repository=$(IMAGE_NAME) \
-        --set image.tag=$(IMAGE_TAG) \
-        deploy/cert-manager-webhook-${PROVIDER} > "$(OUT)/rendered-manifest.yaml"
+	    --set image.repository=$(IMAGE_NAME) \
+	    --set image.tag=$(IMAGE_TAG) \
+	    deploy/cert-manager-webhook-${PROVIDER} > "$(OUT)/rendered-manifest.yaml"

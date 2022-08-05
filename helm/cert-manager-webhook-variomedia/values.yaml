@@ -1,6 +1,5 @@
 # Default values for cert-manager-webhook-variomedia.
 # This is a YAML-formatted file.
-# Declare variables to be passed into your templates.
 
 replicaCount: 1
 
@@ -8,17 +7,18 @@ certManager:
   namespace: cert-manager
   serviceAccountName: cert-manager
 
-groupName: acme.cert-manager-webhook-variomedia.local
+# remember to change "cluster.local" to your cluster's domain, in case it's set differently
+groupName: cert-manager-webhook-variomedia.cluster.local
 
 image:
   repository: ''
   image: cert-manager-webhook-variomedia
-  tag: "v1.1.0"
+  tag: "v2.0.1"
   pullPolicy: IfNotPresent
 
 imagePullSecrets: []
 
-logLevel: 6
+logLevel: 2
 
 nameOverride: ""
 fullnameOverride: ""
@@ -67,7 +67,7 @@ resources: {}
 autoscaling:
   enabled: false
   minReplicas: 1
-  maxReplicas: 100
+  maxReplicas: 1
   targetCPUUtilizationPercentage: 80
   # targetMemoryUtilizationPercentage: 80
 
